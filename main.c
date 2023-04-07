@@ -100,7 +100,7 @@ void A(Stack* stack) {
 			
 		for (; maze[Cur.x++][Cur.y] != 1;) {
 			Push(stack, Cur);
-			//maze[Cur.x][Cur.y] = '2';
+			//maze[Cur.x][Cur.y] = 2;
 		}
 		for (; maze[Cur.x][Cur.y++] != (1);) {
 			Push(stack, Cur);
