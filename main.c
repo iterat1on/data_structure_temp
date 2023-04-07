@@ -100,11 +100,11 @@ void A(Stack* stack) {
 			
 		for (; maze[Cur.x++][Cur.y] != 1;) {
 			Push(stack, Cur);
-			//maze[Cur.x][Cur.y] = '*';
+			//maze[Cur.x][Cur.y] = '2';
 		}
 		for (; maze[Cur.x][Cur.y++] != (1);) {
 			Push(stack, Cur);
-			//maze[Cur.x][Cur.y] = '*';
+			//maze[Cur.x][Cur.y] = '2';
 		}
 
 		printf("%d", Cur.x);
@@ -124,7 +124,7 @@ int main() {
 
 	for (int i = 0; i < hei; i++) {
 		for (int j = 0; j < wid; j++) {
-			printf("%c", maze[i][j]);
+			printf("%d", maze[i][j]);
 		}printf("\n");
 	}
 }
