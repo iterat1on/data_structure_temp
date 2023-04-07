@@ -6,7 +6,7 @@
 #include <stdlib.h>
 
 
-char** maze; // ¹Ì·Î µ¥ÀÌÅÍ ¼ıÀÚ·Î ¹Ù²ã¼­ ÀúÀå
+char** maze; // ë¯¸ë¡œ ë°ì´í„° ìˆ«ìë¡œ ë°”ê¿”ì„œ ì €ì¥
 int wid, hei;
 
 typedef struct {
@@ -64,11 +64,11 @@ int check(char string) {
 
 int make_maze() {
 	char file_name[20];
-	printf("±æÀ» Ã£À» ¹Ì·ÎÀÇ ÆÄÀÏ¸íÀ» ÀÔ·ÂÇÏ½Ã¿À: ");
+	printf("ê¸¸ì„ ì°¾ì„ ë¯¸ë¡œì˜ íŒŒì¼ëª…ì„ ì…ë ¥í•˜ì‹œì˜¤: ");
 	scanf("%s", &file_name);
 	FILE* File = fopen(file_name, "r");
 	if (File == NULL) {
-		printf("Àß¸øµÈ ÆÄÀÏ¸í ÀÔ´Ï´Ù.");
+		printf("ì˜ëª»ëœ íŒŒì¼ëª… ì…ë‹ˆë‹¤.");
 	}
 	else {
 		fscanf(File, "%d %d", &wid, &hei);
@@ -97,14 +97,17 @@ void A(Stack* stack) {
 	Cur.x = 1;
 	Cur.y = 1;
 	Element* p = &Cur;
-
+			
 		for (; maze[Cur.x++][Cur.y] != 1;) {
 			Push(stack, Cur);
+			//maze[Cur.x][Cur.y] = '*';
 		}
-		for (; maze[Cur.x][Cur.y++] != 1;) {
+		for (; maze[Cur.x][Cur.y++] != (1);) {
 			Push(stack, Cur);
+			//maze[Cur.x][Cur.y] = '*';
 		}
 
+		printf("%d", Cur.x);
 
 
 }
@@ -115,13 +118,13 @@ int main() {
 	maze[wid - 1][hei - 1] = 2;
 	A(&X);
 
-	for (int i = 0; i < 5;i++) {
+	for (int i = 0; i < 10;i++) {
 		printf("{%d,%d}\n", X.Data[i].x, X.Data[i].y);
 	}
 
-	/*for (int i = 0; i < hei; i++) {
+	for (int i = 0; i < hei; i++) {
 		for (int j = 0; j < wid; j++) {
-			printf("%d", maze[i][j]);
+			printf("%c", maze[i][j]);
 		}printf("\n");
-	}*/
+	}
 }
