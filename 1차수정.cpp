@@ -37,7 +37,7 @@ void SettingStack(Stack* stack) {
 
 void Push(Stack* stack, Element data) {
     if (IsFull(stack)) {
-        printf("Stack °¡µæÂü\n");
+        printf("Stack ê°€ë“ì°¸\n");
         exit(1);
     }
     stack->Data[++(stack->top)] = data;
@@ -51,29 +51,40 @@ Element Pop(Stack* stack) {
     else
         return stack->Data[stack->top--];
 }
-/*A ÇÔ¼ö¿¡¼­ Å½»öÇÒ range ´Â ÀÔ·ÂÀ¸·Î ¹Ş¾Æ¾ß ÇÒµí? */
+/*A í•¨ìˆ˜ì—ì„œ íƒìƒ‰í•  range ëŠ” ì…ë ¥ìœ¼ë¡œ ë°›ì•„ì•¼ í• ë“¯? */
 void A(Stack* stack, int hei, int wid) {
     Element Cur;
-    Cur.x = 1;
-    Cur.y = 1;
-
-    while (Cur.x < hei * 2 + 1 && maze[Cur.x + 1][Cur.y] != '1') {
-        Push(stack, Cur);
-        maze[Cur.x][Cur.y] = '*';
-        Cur.x++;
+    Cur.x = 1; // hei
+    Cur.y = 1; // wid
+    while (Cur.x < 7) { // Cur.x < wid * 2 + 1 && Cur.x < hei * 2 + 1 
+        while (maze[Cur.x + 1][Cur.y] != 0) {
+            Push(stack, Cur);
+            maze[Cur.x++][Cur.y] = 2;
+        }
+        while (maze[Cur.x][Cur.y + 1] != 0) {
+            Push(stack, Cur);
+            maze[Cur.x][Cur.y++] = 2;
+        }
     }
-    while (Cur.y < wid * 2 + 1 && maze[Cur.x][Cur.y + 1] != '1') {
+
+
+    /*
+    while (Cur.x < hei * 2 + 1 && maze[Cur.y + 1][Cur.x] != '1) {
         Push(stack, Cur);
         maze[Cur.x][Cur.y] = '*';
         Cur.y++;
     }
+    while (Cur.y < wid * 2 + 1 && maze[Cur.y][Cur.x + 1] != '1') {
+        Push(stack, Cur);
+        maze[Cur.y][Cur.x] = '*';
+        Cur.x++;
+    }
+    */
 
-    Push(stack, Cur);
 }
-
 int main() {
-    /*ÆÄÀÏ ÀÔÃâ·ÂÀº main ¿¡¼­ ÇÏ´Â°Ô ¾ÈÀüÇØ¼­ ÇÔ*/
-    /*char ** ÀÌÂ÷¿ø ¹è¿­¿¡ ¸Â°Ô ¾È¹Ù²ã¼­ ÀÏ´Ü ¿À·ù ³ª´ø°Å °íÄ§ -> malloc ÆÄÆ® */
+    /*íŒŒì¼ ì…ì¶œë ¥ì€ main ì—ì„œ í•˜ëŠ”ê²Œ ì•ˆì „í•´ì„œ í•¨*/
+    /*char ** ì´ì°¨ì› ë°°ì—´ì— ë§ê²Œ ì•ˆë°”ê¿”ì„œ ì¼ë‹¨ ì˜¤ë¥˜ ë‚˜ë˜ê±° ê³ ì¹¨ -> malloc íŒŒíŠ¸ */
     // opens text files
     FILE* fp;
     int wid, hei;
@@ -88,7 +99,7 @@ int main() {
 
     fscanf(fp, "%d %d", &wid, &hei);
     while ((c = fgetc(fp)) != '\n');
-    
+
     // allocate memory for maze
     maze = (char**)malloc((hei * 2 + 1) * sizeof(char*));
     for (int i = 0; i < hei * 2 + 1; i++) {
@@ -109,32 +120,32 @@ int main() {
             }
         }
     }
-    /*°æ·Î´Â 1, º®Àº 0À¸·Î Ä¡È¯*/
+    /*ê²½ë¡œëŠ” 1, ë²½ì€ 0ìœ¼ë¡œ ì¹˜í™˜*/
     for (int i = 0; i < hei * 2 + 1; i++) {
         for (int j = 0; j < wid * 2 + 1; j++) {
             if (maze[i][j] == ' ') {
-                maze[i][j] = '1';
+                maze[i][j] = 1;
                 //printf("%c", maze[i][j]);
             }
             else {
-                maze[i][j] = '0';
+                maze[i][j] = 0;
                 //printf("%c", maze[i][j]);
             }
         }
         //printf("\n");
     }
     fclose(fp);
-    // print maze
+
     Stack X;
     SettingStack(&X);
-    maze[hei * 2 - 1][wid * 2 - 1] = '2';
+    maze[hei * 2 - 1][wid * 2 - 1] = 2;
     A(&X, hei, wid);
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < 10; i++) { //print Stafck X
         printf("{%d,%d}\n", X.Data[i].x, X.Data[i].y);
-    }
+    }    // print maze
     for (int i = 0; i < hei * 2 + 1; i++) {
         for (int j = 0; j < wid * 2 + 1; j++) {
-            printf("%c", maze[i][j]);
+            printf("%d", maze[i][j]);
         }
         printf("\n");
     }
