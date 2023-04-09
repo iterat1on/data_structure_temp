@@ -1,130 +1,168 @@
-# define _CRT_SECURE_NO_WARNINGS
-# define MAX_STACK_SIZE 20
+#define _CRT_SECURE_NO_WARNINGS
+#define MAX_STACK_SIZE 20
 
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
-
-char** maze; // 미로 데이터 숫자로 바꿔서 저장
-int wid, hei;
+char** maze;
 
 typedef struct {
-	int x;
-	int y;
-}Element;
+    int x;
+    int y;
+} Element;
 
 typedef struct {
-	Element Data[MAX_STACK_SIZE];
-	int top;
-}Stack;
+    Element Data[MAX_STACK_SIZE];
+    int top;
+} Stack;
 
 int IsFull(Stack* stack) {
-	if (stack->top == MAX_STACK_SIZE - 1) {
-		return 1;
-	}
-	else return 0;
+    if (stack->top == MAX_STACK_SIZE - 1) {
+        return 1;
+    }
+    else return 0;
 }
+
 int IsEmpty(Stack* stack) {
-	if (stack->top == -1) {
-		return 1;
-	}
-	else return 0;
+    if (stack->top == -1) {
+        return 1;
+    }
+    else return 0;
 }
+
 void SettingStack(Stack* stack) {
-	stack->top = -1;
+    stack->top = -1;
 }
 
 void Push(Stack* stack, Element data) {
-	stack->Data[++(stack->top)] = data;
+    if (IsFull(stack)) {
+        printf("Stack 가득참\n");
+        exit(1);
+    }
+    stack->Data[++(stack->top)] = data;
 }
 
 Element Pop(Stack* stack) {
-	if (IsEmpty(stack)) {
-		printf("Is empty Stack\n");
-		exit(1);
-	}
-	else
-		return stack->Data[stack->top];
+    if (IsEmpty(stack)) {
+        printf("Is empty Stack\n");
+        exit(1);
+    }
+    else
+        return stack->Data[stack->top--];
+}
+/*A 함수에서 탐색할 range 는 입력으로 받아야 할듯? */
+void A(Stack* stack, int hei, int wid) {
+    Element Cur;
+    Cur.x = 1; // hei
+    Cur.y = 1; // wid
+    while (Cur.x < 7) { // Cur.x < wid * 2 + 1 && Cur.x < hei * 2 + 1
+        if (Deter(Cur, maze) == 1) {
+            while (maze[Cur.x + 1][Cur.y] != 0) {
+                Push(stack, Cur);
+
+                maze[Cur.x++][Cur.y] = 2;
+            }
+            while (maze[Cur.x][Cur.y + 1] != 0) {
+                Push(stack, Cur);
+                maze[Cur.x][Cur.y++] = 2;
+            }
+            while (maze[Cur.x-1][Cur.y] != 0) {
+                Push(stack, Cur);
+                maze[Cur.x][Cur.y--] = 2;
+            }
+            while (maze[Cur.x][Cur.y - 1] != 0) {
+                Push(stack, Cur);
+                maze[Cur.x--][Cur.y] = 2;
+            }
+        }
+        else {                    // 여기 로직 수정해야함, 머리가 안굴러가서 일단 냅둠, 
+            while(Deter(Cur,maze) != 0)
+            Cur.x = Pop(stack).x;
+            Cur.y = Pop(stack).y;
+        }
+        
+    }
 }
 
-int check(char string) {
-	if (string == EOF) {
-		exit(1);
-	}
-	else if (string == ' ') {
-		return 0;
-	}
-	else {
-		return 1;
-	}
 
+    int Deter(Element Cur, char ** maze) { // 갈수있는길이 없으면 0반환 있으면 1 반환
+        int X = Cur.x, Y = Cur.y;
+        
+        if (maze[X][Y + 1] != 0 && maze[X + 1][Y] != 0 && maze[X - 1][Y] != 0 && maze[X][Y-1]) {
+            return 0;
+        }
+        else {
+            return 1;
+        }
 }
 
 
-int make_maze() {
-	char file_name[20];
-	printf("길을 찾을 미로의 파일명을 입력하시오: ");
-	scanf("%s", &file_name);
-	FILE* File = fopen(file_name, "r");
-	if (File == NULL) {
-		printf("잘못된 파일명 입니다.");
-	}
-	else {
-		fscanf(File, "%d %d", &wid, &hei);
-		wid = wid * 2 + 1; hei = hei * 2 + 1;
-		int i = 0;
-
-		maze = malloc(hei * sizeof(*maze));
-		for (i = 0; i < hei; i++) {
-			maze[i] = malloc(wid * sizeof(**maze));
-		}
-		fseek(File, 2, SEEK_CUR);
-		for (int h = 0; h < hei; h++) {
-			for (int w = 0; w < wid; w++) {
-				char b = fgetc(File);
-				maze[h][w] = check(b);
-
-			} fseek(File, 2, SEEK_CUR);
-		}
-
-	}fclose(File);
-
-}
-
-void A(Stack* stack) {
-	Element Cur;
-	Cur.x = 1;
-	Cur.y = 1;
-	Element* p = &Cur;
-			
-		for (; maze[Cur.x++][Cur.y] != 1;) {
-			Push(stack, Cur);
-			//maze[Cur.x][Cur.y] = 2;
-		}
-		for (; maze[Cur.x][Cur.y++] != (1);) {
-			Push(stack, Cur);
-			//maze[Cur.x][Cur.y] = '2';
-		}
-
-		printf("%d", Cur.x);
-
-
-}
 int main() {
-	Stack X;
-	SettingStack(&X);
-	make_maze();
-	maze[wid - 1][hei - 1] = 2;
-	A(&X);
+    /*파일 입출력은 main 에서 하는게 안전해서 함*/
+    /*char ** 이차원 배열에 맞게 안바꿔서 일단 오류 나던거 고침 -> malloc 파트 */
+    // opens text files
+    FILE* fp;
+    int wid, hei;
 
-	for (int i = 0; i < 10;i++) {
-		printf("{%d,%d}\n", X.Data[i].x, X.Data[i].y);
-	}
+    char c;
+    // opens text files
+    fp = fopen("maze1.txt", "r");
+    if (fp == NULL) {
+        printf("Error opening file\n");
+        return 1;
+    }
 
-	for (int i = 0; i < hei; i++) {
-		for (int j = 0; j < wid; j++) {
-			printf("%d", maze[i][j]);
-		}printf("\n");
-	}
+    fscanf(fp, "%d %d", &wid, &hei);
+    while ((c = fgetc(fp)) != '\n');
+
+    // allocate memory for maze
+    maze = (char**)malloc((hei * 2 + 1) * sizeof(char*));
+    for (int i = 0; i < hei * 2 + 1; i++) {
+        maze[i] = (char*)malloc((wid * 2 + 1) * sizeof(char));
+    }
+
+    // read maze from file
+    int row = 0, col = 0;
+    while ((c = fgetc(fp)) != EOF) {
+        if (c == '\n') {
+            row++;
+            col = 0;
+        }
+        else {
+            if (row < hei * 2 + 1 && col < wid * 2 + 1) {
+                maze[row][col] = c;
+                col++;
+            }
+        }
+    }
+    /*경로는 1, 벽은 0으로 치환*/
+    for (int i = 0; i < hei * 2 + 1; i++) {
+        for (int j = 0; j < wid * 2 + 1; j++) {
+            if (maze[i][j] == ' ') {
+                maze[i][j] = 1;
+                //printf("%c", maze[i][j]);
+            }
+            else {
+                maze[i][j] = 0;
+                //printf("%c", maze[i][j]);
+            }
+        }
+        //printf("\n");
+    }
+    fclose(fp);
+
+    Stack X;
+    SettingStack(&X);
+    maze[hei * 2 - 1][wid * 2 - 1] = 2;
+    A(&X, hei, wid);
+    for (int i = 0; i < 10; i++) { //print Stafck X
+        printf("{%d,%d}\n", X.Data[i].x, X.Data[i].y);
+    }    // print maze
+    for (int i = 0; i < hei * 2 + 1; i++) {
+        for (int j = 0; j < wid * 2 + 1; j++) {
+            printf("%d", maze[i][j]);
+        }
+        printf("\n");
+    }
 }
