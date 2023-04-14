@@ -1,12 +1,12 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define MAX_STACK_SIZE 10000
-
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+
 int wid, hei;
-int** maze;
-int** mark;
+char** maze;
+char** mark;
 typedef struct {
     int h;
     int w;
@@ -56,48 +56,66 @@ Element Pop(Stack* stack) {
 
 
 }
-int Deter(Element Cur, int** maze) { // 갈수있는길이 없으면 0반환 있으면 1 반환
+int Deter(Element Cur, char** maze) { // 갈수있는길이 없으면 0반환 있으면 1 반환
     int H = Cur.h, W = Cur.w;
 
-    if (maze[H][W + 1] != 1 && maze[H + 1][W] != 1 && maze[H - 1][W] != 1 && maze[H][W - 1] != 1) {
+    if (maze[H][W + 1] != '1' && maze[H + 1][W] != '1' && maze[H - 1][W] != '1' && maze[H][W - 1] != '1') {
         return 0;
     }
-    
+
     else {
         return 1;
     }
 }
-void End() {
+void print_result() {
     for (int i = 0; i < hei * 2 + 1; i++) {
         for (int j = 0; j < wid * 2 + 1; j++) {
-            printf("%d", mark[i][j]);
+            printf("%c", mark[i][j]);
+        }
+        printf("\n");
+    }
+}
+void End() {
+
+    for (int i = 0; i < hei * 2 + 1; i++) {
+        for (int j = 0; j < wid * 2 + 1; j++) {
+            if (mark[i][j] == '2') maze[i][j] = 'O';
+        }
+        printf("\n");
+    }
+
+
+
+    for (int i = 0; i < hei * 2 + 1; i++) {
+        for (int j = 0; j < wid * 2 + 1; j++) {
+            printf("%c", maze[i][j]);
         }
         printf("\n");
     }
     exit(1);
 }
-void A(Stack* stack, int hei, int wid, int** mark) {
+void A(Stack* stack, int hei, int wid, char** mark) {
     Element Cur;
     Cur.h = 1; // hei
     Cur.w = 1; // wid
     Push(stack, Cur);
-    mark[Cur.h][Cur.w] = 2;
+    mark[Cur.h][Cur.w] = '2';
     //while (!IsEmpty(stack) || Deter(Cur, maze) != 0) { // Cur.x < wid * 2 + 1 && Cur.x < hei * 2 + 1 
 
     while (!IsEmpty(stack)) {
 
         while (Deter(Cur, mark) != 0) {
-            while (mark[Cur.h + 1][Cur.w] == 1) {
-                if (Cur.h ==2*hei-1 && Cur.w == 2*wid-1) {
+            while (mark[Cur.h + 1][Cur.w] == '1') {
+                if (Cur.h == 2 * hei - 1 && Cur.w == 2 * wid - 1) {
                     printf("\nend\n");
                     End();
                     ;
                 }
                 Cur.h++;
                 Push(stack, Cur);
-                mark[Cur.h][Cur.w] = 2;
+                mark[Cur.h][Cur.w] = '2';
             }
-            while (mark[Cur.h][Cur.w + 1] == 1) {
+            while (mark[Cur.h][Cur.w + 1] == '1') {
                 if (Cur.h == 2 * hei - 1 && Cur.w == 2 * wid - 1) {
                     printf("\nend\n");
                     End();
@@ -106,9 +124,9 @@ void A(Stack* stack, int hei, int wid, int** mark) {
                 Cur.w++;
                 Push(stack, Cur);
 
-                mark[Cur.h][Cur.w] = 2;
+                mark[Cur.h][Cur.w] = '2';
             }
-            while (mark[Cur.h - 1][Cur.w] == 1) {
+            while (mark[Cur.h - 1][Cur.w] == '1') {
                 if (Cur.h == 2 * hei - 1 && Cur.w == 2 * wid - 1) {
                     printf("\nend\n");
                     End();
@@ -116,9 +134,9 @@ void A(Stack* stack, int hei, int wid, int** mark) {
                 }
                 Cur.h--;
                 Push(stack, Cur);
-                mark[Cur.h][Cur.w] = 2;
+                mark[Cur.h][Cur.w] = '2';
             }
-            while (mark[Cur.h][Cur.w - 1] == 1 ) {
+            while (mark[Cur.h][Cur.w - 1] == '1') {
                 if (Cur.h == 2 * hei - 1 && Cur.w == 2 * wid - 1) {
                     printf("\nend\n");
                     End();
@@ -126,7 +144,7 @@ void A(Stack* stack, int hei, int wid, int** mark) {
                 }
                 Cur.w--;
                 Push(stack, Cur);
-                mark[Cur.h][Cur.w] = 2;
+                mark[Cur.h][Cur.w] = '2';
             }
         }
         while (Deter(Cur, mark) == 0 && stack->top != 0) {
@@ -134,18 +152,18 @@ void A(Stack* stack, int hei, int wid, int** mark) {
                 printf("\nend\n");
                 End();
             }
-            mark[Cur.h][Cur.w] = 7;
+            mark[Cur.h][Cur.w] = '7';
             Cur = Pop(stack);
         }
         if (stack->top == 0) {
             Pop(stack);
         }
-        
+
     }
     printf("No Route\n");
     End();
 
-    
+
 
 
 
@@ -157,7 +175,7 @@ int main() {
     FILE* fp;
 
 
-    int c;
+    char c;
     // opens text files
     fp = fopen("maze1.txt", "r");
     if (fp == NULL) {
@@ -173,9 +191,10 @@ int main() {
     for (int i = 0; i < hei * 2 + 1; i++) {
         maze[i] = (char*)malloc((wid * 2 + 1) * sizeof(char));
     }
-    mark = (int**)malloc((hei * 2 + 1) * sizeof(int*));
+
+    mark = (char**)malloc((hei * 2 + 1) * sizeof(char*));
     for (int i = 0; i < hei * 2 + 1; i++) {
-        maze[i] = (int*)malloc((wid * 2 + 1) * sizeof(int));
+        mark[i] = (char*)malloc((wid * 2 + 1) * sizeof(char));
     }
 
     // read maze from file
@@ -188,20 +207,21 @@ int main() {
         else {
             if (row < hei * 2 + 1 && col < wid * 2 + 1) {
                 maze[row][col] = c;
+                mark[row][col] = c;
                 col++;
             }
         }
     }
     /*경로는 1, 벽은 0으로 치환*/
-    mark = maze;
+
     for (int i = 0; i < hei * 2 + 1; i++) {
         for (int j = 0; j < wid * 2 + 1; j++) {
             if (mark[i][j] == ' ') {
-                mark[i][j] = 1;
+                mark[i][j] = '1';
                 //printf("%c", maze[i][j]);
             }
             else {
-                mark[i][j] = 0;
+                mark[i][j] = '0';
                 //printf("%c", maze[i][j]);
             }
         }
@@ -211,8 +231,9 @@ int main() {
 
     Stack X;
     SettingStack(&X);
-    maze[hei * 2 - 1][wid * 2 - 1] = 1;
+    maze[hei * 2 - 1][wid * 2 - 1] = '1';
     A(&X, hei, wid, mark);
+
     /* for (int i = 0; i < 10; i++) { //print Stafck X
          printf("{%d,%d}\n", X.Data[i].h, X.Data[i].w);
      }*/    // print maze
