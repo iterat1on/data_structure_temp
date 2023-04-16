@@ -75,8 +75,8 @@ void SearchWord(Node* root, char* input) {
             printf("단어를 추가하지 않았습니다.\n");
         }
         else {
-            root = insert(root, input, defin, 0 );
-            printf("%s %s가 추가되었습니다.(총 %d개의 단어)\n",input ,defin, count);
+            root = insert(root, input, defin, 0);
+            printf("%s %s가 추가되었습니다.(총 %d개의 단어)\n", input, defin, count);
         }
     }
 }
@@ -89,10 +89,10 @@ void printList(Node* root) {
     }
 }
 int main() {
-    clock_t start = clock();
+    
     Node* root = NULL;
     FILE* fp;
-    
+
     char line[MAX_WORD + MAX_DEF + 2];
     char word[MAX_WORD], definition[MAX_DEF];
 
@@ -101,25 +101,29 @@ int main() {
         printf("Error opening file\n");
         return 1;
     }
-
+    clock_t start1 = clock();
     while (fgets(line, sizeof(line), fp) != NULL) {
         sscanf(line, "%s : %[^\n]", word, definition);
-        root = insert(root, word, definition,0);
+        root = insert(root, word, definition, 0);
         count++;
     }
     fclose(fp);
 
-    clock_t end= clock();
-    
-    printf("%.3f초가 소요되었습니다. \n", (double)(end - start) / CLOCKS_PER_SEC);
-    
+    clock_t end1 = clock();
+
+    printf("%.7f초가 소요되었습니다. \n", (double)(end1 - start1) / CLOCKS_PER_SEC);
+
     char input[20];
     while (1) {
         printf(">>");
-        scanf("%s", input);
-        SearchWord(root,input);
         
+        scanf("%s", input);
+        clock_t start = clock();
+        SearchWord(root, input);
+        clock_t end = clock();
+        printf("%.7f초가 소요되었습니다. \n", (double)(end - start) / CLOCKS_PER_SEC);
+
     }
-    
+
     return 0;
 }
