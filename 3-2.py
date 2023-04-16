@@ -1,72 +1,125 @@
 import time
 import asyncio
+import aioconsole
+from collections import deque
 
-MAX_QSIZE = 8
+
+max_size = 21
 
 
 class Queue:
-    def __init__(self):
-        self.front = 0
-        self.rear = 0
-        self.items = [None] * MAX_QSIZE
+    def __init__(self, max_size):
+        self.max_size = max_size
+        self.queue = [None] * max_size
+        self.front = -1
+        self.rear = -1
 
-    def isEmpty(self):
-        return self.front == self.rear
+    def is_empty(self):
+        return self.front == -1
 
-    def isFull(self):
-        return self.front == (self.rear + 1) % MAX_QSIZE
+    def is_full(self):
 
-    def clear(self):
-        self.front = self.rear
+        return max_size - 2 == self.rear
 
-    def enqueue(self, item):
-        if not self.isFull():
-            self.rear = (self.rear + 1) % MAX_QSIZE
-            self.items[self.rear] = item
+    def enqueue(self, data):
+        if self.is_full():
+            pass
+        else :
+            if self.is_empty():
+                self.front = 0
+
+            self.rear = (self.rear + 1) % self.max_size
+            self.queue[self.rear] = data
+            return  data
 
     def dequeue(self):
-        if not self.isEmpty():
-            self.front = (self.front + 1) % MAX_QSIZE
-            return self.items[self.front]
+        if self.is_empty():
+            raise Exception("Queue is empty")
 
-    def peek(self):
-        if not self.isEmpty():
-            return self.items[(self.front + 1) % MAX_QSIZE]
+        data = self.queue[self.front]
+
+        if self.front == self.rear:
+            self.front = -1
+            self.rear = -1
+        else:
+            self.front = (self.front + 1) % self.max_size
+
+        return data
 
     def display(self):
-        out = []
-        if self.front < self.rear:
-            out = self.items[self.front + 1:self.rear + 1]
+
+        if self.rear >= self.front:
+            queue_range = range(self.front, self.rear+1)
         else:
-            out = self.items[self.front + 1:MAX_QSIZE] + self.items[0:self.rear + 1]
-        print("[f=%s, r=%d] ->" % (self.front, self.rear), out)
+            queue_range = range(self.front, self.max_size) + range(0, self.rear+1)
+        for i in queue_range:
+            print(self.queue[i], end=" ")
+
+        print(f"[F={self.front}, R={self.rear}] ", end=" ")
+
+        print()
 
 
-que = Queue()
-sec = 1
+que = Queue(max_size)
+start_time = time.time()
+sec = time.time()
 
 
-async def DeQue(Q):
+async def EnQue(Q, start_time):
     while True:
-        if not Q.isEmpty():
-            print(f"[{sec}]", end="")
-            Q.dequeue()
-            sec += 1
+        item = await aioconsole.ainput('')
+        for i in range(len(item)):
+            now_time = time.time()
+            time_diff = int(now_time - start_time)
+            print(f"[{time_diff}]", end="")
+            print(f"ADDQUEUE() = {Q.enqueue(item[i])} : ", end="")
+            Q.display()
+
+        return Q
+
+
+async def DeQue(Q, start_time):
+    while True:
+        while not Q.is_empty():
+            now_time = time.time()
+            time_diff = int(now_time - start_time)
+            print(f"[{time_diff}]", end="")
+            print(f"DEQUEUE() = {Q.dequeue()} : ", end="")
+            Q.display()
+            time.sleep(1)
         await asyncio.sleep(1)
+        return Q
 
 
-async def user_input():
-    text = await asyncio.get_running_loop().run_in_executor(None, input, "입력값 ")
-    return text
+async def display_que(Q) :
+    Q.display()
+
+async def test():
+    while True:
+        now_time = time.time()
+        time_diff = int(now_time - start_time)
+        print(f"[{time_diff}]", end="")
+        stop_event = asyncio.Event()
+
+        await display_que(que)
+        task1 = asyncio.create_task(DeQue(que, start_time))
+        task2 = asyncio.create_task(EnQue(que, start_time))
 
 
-async def main():
-    dq_task = asyncio.create_task(DeQue(que))
-    text = user_input()
-    dq_task.cancel()  # stop the DeQue task
-    print(text)
-    que.display()
+        done, _ = await asyncio.wait({task2}, timeout=1.0)
 
 
-loop = asyncio.get_event_loop()
-loop.run_until_complete(main())
+        if task2 in done:
+            response = await task2
+        else:
+            task2.cancel()
+            response = None
+
+
+        stop_event.set()
+
+
+
+
+while True :
+    asyncio.run(test())
